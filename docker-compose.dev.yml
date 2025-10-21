@@ -1,0 +1,29 @@
+services:
+  neon-local:
+    image: ghcr.io/neondatabase/neon-local:latest
+    container_name: neon-local
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    # Pass credentials and config to neon-local from the same env file
+    env_file:
+      - .env.development
+
+  app:
+    build:
+      context: .
+      target: dev
+    container_name: acquisitions-api-dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.development
+    environment:
+      NODE_ENV: development
+      DB_CLIENT: pg
+    depends_on:
+      - neon-local
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
